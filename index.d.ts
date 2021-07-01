@@ -1,4 +1,3 @@
-/* eslint-disable typescript-sort-keys/interface */
 import * as React from 'react'
 
 export interface ILightBoxProps {
