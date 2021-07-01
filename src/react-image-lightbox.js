@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'react-modal';
+
 import {
-  translate,
   getWindowWidth,
   getWindowHeight,
   getHighestSafeWindowContext,
@@ -25,6 +25,7 @@ import {
   SOURCE_POINTER,
   MIN_SWIPE_DISTANCE,
 } from './constant';
+
 import './style.css';
 
 class ReactImageLightbox extends Component {
@@ -1091,22 +1092,40 @@ class ReactImageLightbox extends Component {
 
   rotateImage(direction) {
     const { rotate } = this.state;
+
+    const isRotateRight270 = direction === 'right' && rotate === 270;
+    const isRotateLeft0 = direction === 'left' && rotate === 0;
+
+    if (isRotateRight270 || isRotateLeft0) {
+      this.setState({
+        rotate: isRotateLeft0 ? 360 : -90,
+        shouldAnimate: false,
+      });
+      this.setTimeout(() => this.rotateImage(direction));
+      return;
+    }
+
     let degree = rotate;
     if (direction === 'left') {
-      if (degree <= 0) {
-        degree = 270;
-      } else {
-        degree -= 90;
-      }
+      degree -= 90;
     } else if (direction === 'right') {
-      if (degree >= 270) {
-        degree = 0;
-      } else {
-        degree += 90;
-      }
+      degree += 90;
     }
+
+    if (degree >= 0) {
+      degree %= 360;
+    } else {
+      degree = 360 - (-degree % 360);
+    }
+
+    if (!this.props.animationDisabled) {
+      this.setState({ rotate: degree, shouldAnimate: true });
+      setTimeout(() => {
+        this.setState({ shouldAnimate: false });
+      }, this.state.animationDirection);
+    }
+
     this.props.onImageRotate(degree);
-    this.setState({ rotate: degree });
   }
 
   handleRotateLeftButtonClick() {
@@ -1269,6 +1288,11 @@ class ReactImageLightbox extends Component {
   }
 
   requestMove(direction, event) {
+    if (this.state.rotate === 270) {
+      this.setState({ rotate: -90, shouldAnimate: false });
+      this.setTimeout(() => this.requestMove(direction, event));
+      return;
+    }
     // Reset the zoom level & rotation on image move
     const nextState = {
       zoomLevel: MIN_ZOOM_LEVEL,
@@ -1449,9 +1473,7 @@ class ReactImageLightbox extends Component {
             style={imageStyle}
             src={imageSrc}
             key={imageSrc + keyEndings[srcType]}
-            alt={
-              typeof imageTitle === 'string' ? imageTitle : translate('Image')
-            }
+            alt={typeof imageTitle === 'string' ? imageTitle : 'Image'}
             draggable={false}
           />
         );
@@ -1508,7 +1530,7 @@ class ReactImageLightbox extends Component {
           onAfterOpen();
         }}
         style={modalStyle}
-        contentLabel={translate('Lightbox')}
+        contentLabel="Lightbox"
         appElement={
           typeof global.window !== 'undefined'
             ? global.window.document.body

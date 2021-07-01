@@ -1,4 +1,5 @@
-import * as React from 'react';
+/* eslint-disable typescript-sort-keys/interface */
+import * as React from 'react'
 
 export interface ILightBoxProps {
     mainSrc: string;
@@ -10,7 +11,7 @@ export interface ILightBoxProps {
     onCloseRequest(): void;
     onMovePrevRequest?(): void;
     onMoveNextRequest?(): void;
-    onImageRotate?():void;
+    onImageRotate?(deg: string): void;
     onImageLoad?(): void;
     onImageLoadError?(): void;
     imageLoadErrorMessage?: React.ReactNode;
@@ -25,11 +26,11 @@ export interface ILightBoxProps {
     imageCaption?: React.ReactNode | string;
     imageCrossOrigin?: string;
     toolbarButtons?: React.ReactNode[];
-    reactModalStyle?: any;
-    reactModalProps?: any;
+    reactModalStyle?: React.CSSProperties;
+    reactModalProps?: React.CSSProperties;
     imagePadding?: number;
     clickOutsideToClose?: boolean;
-    enableRotate?:boolean;
+    enableRotate?: boolean;
     enableZoom?: boolean;
     wrapperClassName?: string;
     nextLabel?: string;
